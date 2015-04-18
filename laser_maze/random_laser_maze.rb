@@ -15,7 +15,6 @@ class Maze
     @grid_size = args[:grid_size]
     generate_random_maze
     convert_maze
-    @laser = find_start_point
     @width = @height = @maze_array.length
   end
 
@@ -38,17 +37,15 @@ class Maze
     def generate_random_maze
       @grid_size.times do
         temp_row = []
-        @grid_size.times do
-          temp_row << SYMBOLS.sample
-        end
+        @grid_size.times { temp_row << SYMBOLS.sample }
         @maze_array << temp_row
       end
       @maze_array[rand(@grid_size)][rand(@grid_size)] = DIRECTIONS.sample
     end
 
     def convert_maze
-      @maze_array.map! do |row|
-        row.map! do |cell|
+      @maze_array.map!.with_index do |row, y|
+        row.map!.with_index do |cell, x|
           case cell
           when "-"
             EmptyElement.new
@@ -65,46 +62,42 @@ class Maze
           when "<"
             PrismWest.new
           when "N"
-            # North.new
-            "N"
+            dir = North.new
+            @laser = [ dir.string_symbol, [y, x] ]
+            dir
           when "S"
-            # South.new
-            "S"
+            dir = South.new
+            @laser = [ dir.string_symbol, [y, x] ]
+            dir
           when "E"
-            # East.new
-            "E"
+            dir = East.new
+            @laser = [ dir.string_symbol, [y, x] ]
+            dir
           when "W"
-            # West.new
-            "W"
+            dir = West.new
+            @laser = [ dir.string_symbol, [y, x] ]
+            dir
           end
         end
       end
     end
 
-    def find_start_point
-      @maze_array.each_with_index do |row, index|
-        if row.find {|i| i == "N" || i == "S" || i == "E" || i == "W"}
-          @start_direction = row.find {|i| i == "N" || i == "S" || i == "E" || i == "W"}
-          @start_location = [index, row.index(@start_direction)]
+    def find_current_location
+      @current_object = @maze_array[@laser[1][0]][@laser[1][1]]
+      unless @current_object == "N" || @current_object == "S" || @current_object == "E" || @current_object == "W"
+        if @current_object.string_symbol == "-"
+          @current_object.string_symbol = "*".green
+        else
+          @current_object.string_symbol = @current_object.string_symbol.green
         end
+        @current_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
+        @current_object.track_history(@current_location)
+        puts "Current location: #{@current_location}"
       end
-      return raise "No starting point!" if @start_location == nil
-      puts "Start Location: #{[@start_direction, @start_location]}"
-      [@start_direction, @start_location]
-    end
-
-    def find_next_location
-      return if out_of_bounds
-      return if infinite_loop
-
-      next_element = @maze_array[@laser[1][0]][@laser[1][1]]
-      next_y_x = [@laser[1][0], @laser[1][1]]
-      next_direction = next_element.move_through(@laser[0])
-      @laser[0] = next_direction
-      puts "Next location: #{[next_direction, next_y_x]}"
     end
 
     def move_laser
+      p @current_object
       case @laser[0]
       when "N"
         @laser[1][0] -= 1
@@ -117,18 +110,15 @@ class Maze
       end
     end
 
-    def find_current_location
-      current_object = @maze_array[@laser[1][0]][@laser[1][1]]
-      unless current_object == "N" || current_object == "S" || current_object == "E" || current_object == "W"
-        if current_object.string_symbol == "-"
-          current_object.string_symbol = "*".green
-        else
-          current_object.string_symbol = current_object.string_symbol.green
-        end
-        old_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
-        current_object.track_history(old_location)
-        puts "Current location: #{old_location}"
-      end
+    def find_next_location
+      return if out_of_bounds
+      return if infinite_loop
+
+      next_object = @maze_array[@laser[1][0]][@laser[1][1]]
+      next_y_x = [@laser[1][0], @laser[1][1]]
+      next_direction = next_object.move_through(@laser[0])
+      @laser[0] = next_direction
+      puts "Next location: #{[next_direction, next_y_x]}"
     end
 
     def out_of_bounds
@@ -141,6 +131,7 @@ class Maze
     end
 
     def infinite_loop
+
     end
 
     def print_maze
@@ -151,5 +142,5 @@ class Maze
     end
 end
 
-laser_maze = Maze.new(grid_size: 20)
+laser_maze = Maze.new(grid_size: 15)
 laser_maze.fire

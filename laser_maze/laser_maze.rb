@@ -1,7 +1,7 @@
 require_relative 'element'
 require_relative 'empty_element'
-require_relative 'mirrors'
-require_relative 'prisms'
+require_relative 'mirror'
+require_relative 'prism'
 require_relative 'string_color'
 
 
@@ -72,16 +72,16 @@ class Maze
     end
 
     def next_element
-      current_object = @maze_array[@laser[1][0]][@laser[1][1]]
-      unless current_object == "N" || current_object == "S" || current_object == "E" || current_object == "W"
-        if current_object.string_symbol == "-"
-          current_object.string_symbol = "*".green
+      @current_object = @maze_array[@laser[1][0]][@laser[1][1]]
+      unless @current_object == "N" || @current_object == "S" || @current_object == "E" || @current_object == "W"
+        if @current_object.string_symbol == "-"
+          @current_object.string_symbol = "*".green
         else
-          current_object.string_symbol = current_object.string_symbol.green
+          @current_object.string_symbol = @current_object.string_symbol.green
         end
-        old_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
-        current_object.track_history(old_location)
-        puts "Current location: #{old_location}"
+        @current_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
+        @current_object.track_history(@current_location)
+        puts "Current location: #{@current_location}"
       end
 
       case @laser[0]

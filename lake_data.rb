@@ -37,7 +37,7 @@ class LakeData
       @lines = @response.split("\n")
       @header = @lines.shift.split(" ")
       @header.delete_at(1)
-      # @lines = @lines[1..4]
+      @lines = @lines[1..6]
       @lines_length = @lines.length
       @lines.map! { |line| line.split("\t") }
     end
@@ -52,7 +52,8 @@ class LakeData
     def median_for_even
       @medians.map!.with_index(1) do |elmt, i|
         @lines.sort! { |a, b| a[i] <=> b[i] }
-        # @lines.each_with_index {|line, i| puts "#{i}. #{line}"}
+        @lines.each_with_index {|line, i| puts "#{i}. #{line}"}
+        puts
         elmt = (((@lines[@lines_length / 2 - 1][i].to_f) + (@lines[@lines_length / 2][i].to_f)) / 2).round(2)
       end
     end
@@ -60,7 +61,8 @@ class LakeData
     def median_for_odd
       @medians.map!.with_index(1) do |elmt, i|
         elmt = @lines[@lines_length/2][i]
-        # @lines.each_with_index {|line, i| puts "#{i}. #{line}"}
+        @lines.each_with_index {|line, i| puts "#{i}. #{line}"}
+        puts
       end
     end
 

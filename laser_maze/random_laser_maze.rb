@@ -11,11 +11,11 @@ class Maze
   DIRECTIONS = ["N", "S", "E", "W"]
 
   def initialize(args = {})
+    @width = args[:width]
+    @height = args[:height]
     @maze_array = []
-    @grid_size = args[:grid_size]
     generate_random_maze
     convert_maze
-    @width = @height = @maze_array.length
   end
 
   def fire
@@ -28,7 +28,7 @@ class Maze
       print_maze
       return puts "Out of bounds!" if out_of_bounds
       return puts "Infinite loop!" if infinite_loop
-      sleep 0.2
+      sleep 0.3
       puts "\n" * 50
     end
   end
@@ -36,12 +36,12 @@ class Maze
   private
 
     def generate_random_maze
-      @grid_size.times do
+      @height.times do
         temp_row = []
-        @grid_size.times { temp_row << SYMBOLS.sample }
+        @width.times { temp_row << SYMBOLS.sample }
         @maze_array << temp_row
       end
-      @maze_array[rand(@grid_size)][rand(@grid_size)] = DIRECTIONS.sample
+      @maze_array[rand(@height)][rand(@width)] = DIRECTIONS.sample
     end
 
     def convert_maze
@@ -127,14 +127,14 @@ class Maze
       elsif @laser[1][1] < 0 || @laser[1][1] > @width - 1
         return true
       end
-      return false
+      false
     end
 
     def infinite_loop
       if @current_object.history.length > 2 && @current_object.history.last == @current_object.history.first
-        return true
+        true
       else
-        return false
+        false
       end
     end
 
@@ -146,5 +146,5 @@ class Maze
     end
 end
 
-laser_maze = Maze.new(grid_size: ARGV[0].to_i)
+laser_maze = Maze.new(width: ARGV[0].to_i, height: ARGV[1].to_i)
 laser_maze.fire

@@ -20,6 +20,7 @@ class Maze
 
   def fire
     puts "\n" * 50
+    find_current_location
     until out_of_bounds || infinite_loop
       find_current_location
       move_laser
@@ -27,7 +28,7 @@ class Maze
       print_maze
       return puts "Out of bounds!" if out_of_bounds
       return puts "Infinite loop!" if infinite_loop
-      sleep 0.4
+      sleep 0.2
       puts "\n" * 50
     end
   end
@@ -97,7 +98,6 @@ class Maze
     end
 
     def move_laser
-      p @current_object
       case @laser[0]
       when "N"
         @laser[1][0] -= 1
@@ -131,7 +131,11 @@ class Maze
     end
 
     def infinite_loop
-
+      if @current_object.history.length > 2 && @current_object.history.last == @current_object.history.first
+        return true
+      else
+        return false
+      end
     end
 
     def print_maze
@@ -142,5 +146,5 @@ class Maze
     end
 end
 
-laser_maze = Maze.new(grid_size: 15)
+laser_maze = Maze.new(grid_size: ARGV[0].to_i)
 laser_maze.fire

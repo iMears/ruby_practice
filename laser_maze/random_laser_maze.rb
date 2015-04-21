@@ -7,29 +7,30 @@ require_relative 'string_color'
 
 
 class Maze
-  SYMBOLS = ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "/", "\\", "^", "v", ">", "<"]
-  DIRECTIONS = ["N", "S", "E", "W"]
+  SYMBOLS = %w(- - - - - - - - - - - - / \\ ^ v > <)
+  DIRECTIONS = %w(N S E W)
 
   def initialize(args = {})
-    @width = args[:width]
-    @height = args[:height]
+    @width = args[:width].to_i
+    @height = args[:height].to_i
+    if @width == 0 || @height == 0
+      raise "Please enter height and width of grid! Example: \"ruby generate_random_maze.rb 10 20\""
+    end
+    @laser = nil
     @maze_array = []
     generate_random_maze
     convert_maze
   end
 
-  def fire
-    puts "\n" * 50
-    find_current_location
-    until out_of_bounds || infinite_loop
+  def fire!
+    loop do
       find_current_location
-      move_laser
-      find_next_location
+      return puts "Infinite loop!" if infinite_loop
+      update_laser_position
+      update_laser_direction
       print_maze
       return puts "Out of bounds!" if out_of_bounds
-      return puts "Infinite loop!" if infinite_loop
       sleep 0.3
-      puts "\n" * 50
     end
   end
 
@@ -63,24 +64,22 @@ class Maze
           when "<"
             PrismWest.new
           when "N"
-            dir = North.new
-            @laser = [ dir.string_symbol, [y, x] ]
-            dir
+            convert_start_point(North.new, y, x)
           when "S"
-            dir = South.new
-            @laser = [ dir.string_symbol, [y, x] ]
-            dir
+            convert_start_point(South.new, y, x)
           when "E"
-            dir = East.new
-            @laser = [ dir.string_symbol, [y, x] ]
-            dir
+            convert_start_point(East.new, y, x)
           when "W"
-            dir = West.new
-            @laser = [ dir.string_symbol, [y, x] ]
-            dir
+            convert_start_point(West.new, y, x)
           end
         end
       end
+    end
+
+    def convert_start_point(new_object, row, col)
+      start_point = new_object
+      @laser = [start_point.string_symbol, [row, col]]
+      start_point
     end
 
     def find_current_location
@@ -88,16 +87,17 @@ class Maze
       unless @current_object == "N" || @current_object == "S" || @current_object == "E" || @current_object == "W"
         if @current_object.string_symbol == "-"
           @current_object.string_symbol = "*".green
+        elsif @current_object.string_symbol == "*".green
+          @current_object.string_symbol = "*".red
         else
           @current_object.string_symbol = @current_object.string_symbol.green
         end
         @current_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
         @current_object.track_history(@current_location)
-        puts "Current location: #{@current_location}"
       end
     end
 
-    def move_laser
+    def update_laser_position
       case @laser[0]
       when "N"
         @laser[1][0] -= 1
@@ -110,7 +110,7 @@ class Maze
       end
     end
 
-    def find_next_location
+    def update_laser_direction
       return if out_of_bounds
       return if infinite_loop
 
@@ -118,7 +118,6 @@ class Maze
       next_y_x = [@laser[1][0], @laser[1][1]]
       next_direction = next_object.move_through(@laser[0])
       @laser[0] = next_direction
-      puts "Next location: #{[next_direction, next_y_x]}"
     end
 
     def out_of_bounds
@@ -131,7 +130,7 @@ class Maze
     end
 
     def infinite_loop
-      if @current_object.history.length > 2 && @current_object.history.last == @current_object.history.first
+      if @current_object.history.length > 1 && @current_object.history.last == @current_object.history.first
         true
       else
         false
@@ -139,12 +138,15 @@ class Maze
     end
 
     def print_maze
+      puts "\n" * 50
       puts "= " * (@width + 2)
       @maze_array.each { |row| puts "| " + row.join(" ") + " |" }
       puts "= " * (@width + 2)
       puts
+      puts "Current location: #{@current_location}"
+      puts "Next location: #{@laser}"
     end
 end
 
-laser_maze = Maze.new(width: ARGV[0].to_i, height: ARGV[1].to_i)
-laser_maze.fire
+laser_maze = Maze.new(width: ARGV[0], height: ARGV[1])
+laser_maze.fire!

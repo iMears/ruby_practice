@@ -60,17 +60,16 @@ class Maze
 
     def find_current_location
       @current_object = @maze_array[@laser[1][0]][@laser[1][1]]
-      unless @current_object == "N" || @current_object == "S" || @current_object == "E" || @current_object == "W"
-        if @current_object.string_symbol == "-"
-          @current_object.string_symbol = "*".green
-        elsif @current_object.string_symbol == "*".green
-          @current_object.string_symbol = "*".red
-        else
-          @current_object.string_symbol = @current_object.string_symbol.green
-        end
-        @current_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
-        @current_object.track_history(@current_location)
+      case @current_object.string_symbol
+      when "-"
+        @current_object.string_symbol = "*".green
+      when "*".green
+        @current_object.string_symbol = "*".red
+      else
+        @current_object.string_symbol = @current_object.string_symbol.green
       end
+      @current_location = [@laser[0], [@laser[1][0], @laser[1][1]]]
+      @current_object.track_history(@current_location)
     end
 
     def update_laser_position

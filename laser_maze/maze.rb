@@ -54,9 +54,8 @@ class Maze
     end
 
     def convert_start_point(new_object, row, col)
-      start_point = new_object
-      @laser = [start_point.string_symbol, [row, col]]
-      start_point
+      @laser = [new_object.string_symbol, [row, col]]
+      new_object
     end
 
     def find_current_location
@@ -92,7 +91,6 @@ class Maze
       return if infinite_loop
 
       next_object = @maze_array[@laser[1][0]][@laser[1][1]]
-      next_y_x = [@laser[1][0], @laser[1][1]]
       next_direction = next_object.move_through(@laser[0])
       @laser[0] = next_direction
     end

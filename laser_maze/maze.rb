@@ -7,43 +7,20 @@ require_relative 'string_color'
 
 
 class Maze
-  SYMBOLS = %w(- - - - - - - - - - - - / \\ ^ v > <)
-  DIRECTIONS = %w(N S E W)
-
-  def initialize(args = {})
-    @width = args[:width].to_i
-    @height = args[:height].to_i
-    if @width == 0 || @height == 0
-      raise "Please enter height and width of grid! Example: \"ruby generate_random_maze.rb 10 20\""
-    end
-    @laser = nil
-    @maze_array = []
-    generate_random_maze
-    convert_maze
-  end
 
   def fire!
     loop do
       find_current_location
-      return puts "Infinite loop!" if infinite_loop
+      return puts "\nInfinite loop!" if infinite_loop
       update_laser_position
       update_laser_direction
       print_maze
-      return puts "Out of bounds!" if out_of_bounds
-      sleep 0.3
+      return puts "\nOut of bounds!" if out_of_bounds
+      sleep 0.05
     end
   end
 
   private
-
-    def generate_random_maze
-      @height.times do
-        temp_row = []
-        @width.times { temp_row << SYMBOLS.sample }
-        @maze_array << temp_row
-      end
-      @maze_array[rand(@height)][rand(@width)] = DIRECTIONS.sample
-    end
 
     def convert_maze
       @maze_array.map!.with_index do |row, y|
@@ -147,6 +124,3 @@ class Maze
       puts "Next location: #{@laser}"
     end
 end
-
-laser_maze = Maze.new(width: ARGV[0], height: ARGV[1])
-laser_maze.fire!

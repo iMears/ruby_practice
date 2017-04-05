@@ -25,6 +25,16 @@ describe 'Queue' do
 
       expect(result).to match(['foobar'])
     end
+
+    it 'raises an error if the queue is full' do
+      queue = Queue.new(3)
+
+      queue.enqueue('foo')
+      queue.enqueue('foo')
+      queue.enqueue('foo')
+
+      expect{queue.enqueue('bar')}.to raise_error('FullQueue')
+    end
   end
 
   describe '#dequeue' do
@@ -34,6 +44,10 @@ describe 'Queue' do
       result = queue.dequeue()
 
       expect(result).to match('baz')
+    end
+
+    it 'raises an error if the queue is empty' do
+      expect{queue.dequeue}.to raise_error('EmptyQueue')
     end
   end
 
